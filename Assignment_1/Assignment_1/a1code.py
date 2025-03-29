@@ -40,7 +40,15 @@ def print_stats(image):
     """
     
     # YOUR CODE HERE
-    print(image.shape)
+    imageStats = image.shape
+    
+    height = imageStats[0]
+    width = imageStats[1]
+    nChannels = imageStats[2]
+    
+    print("height: ", height)
+    print("width: ", width)
+    print("number of channels: ", nChannels)
     
     return None
 
