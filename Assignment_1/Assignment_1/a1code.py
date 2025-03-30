@@ -44,7 +44,11 @@ def print_stats(image):
     
     height = imageStats[0]
     width = imageStats[1]
-    nChannels = imageStats[2]
+    
+    if (len(imageStats) == 3):
+        nChannels = imageStats[2]
+    else:
+        nChannels = 1
     
     print("height: ", height)
     print("width: ", width)
@@ -66,9 +70,9 @@ def crop(image, start_row, start_col, num_rows, num_cols):
         out: numpy array of shape(num_rows, num_cols, 3).
     """
 
-    out = None
-
     ### YOUR CODE HERE
+    
+    out = image[start_row:start_row + num_rows, start_col:start_col + num_cols]
 
     return out
 
@@ -110,7 +114,11 @@ def resize(input_image, output_rows, output_cols):
     Returns:
         np.ndarray: Resized image, with shape `(output_rows, output_cols, 3)`.
     """
-    out = None
+    imageShape = input_image.shape
+    scale_row = imageShape[0] / output_rows
+    scale_col = imageShape[1] / output_cols
+    
+    return input_image * scale_row
     
     
     return out
