@@ -98,7 +98,8 @@ def change_contrast(image, factor):
 
     ### YOUR CODE HERE
 
-    return out
+    contrastedImage = factor * (image - 0.5) + 0.5
+    return np.clip(contrastedImage, 0.0, 1.0)
 
 
 def resize(input_image, output_rows, output_cols):
@@ -118,13 +119,20 @@ def resize(input_image, output_rows, output_cols):
     scale_row = imageShape[0] / output_rows
     scale_col = imageShape[1] / output_cols
     
-    return input_image * scale_row
+    out = np.zeros((output_rows, output_cols, 3))
+    
+    for i in range(output_rows):
+        for j in range(output_cols):
+            xPixel = int(i * scale_row)
+            yPixel = int(j * scale_col)
+            
+            out[i][j] = input_image[xPixel][yPixel]
     
     
     return out
 
 def greyscale(input_image):
-    """Convert a RGB image to greyscale. 
+    """Convert an RGB image to greyscale. 
     A simple method is to take the average of R, G, B at each pixel.
     Or you can look up more sophisticated methods online.
     
@@ -135,8 +143,17 @@ def greyscale(input_image):
     Returns:
         np.ndarray: Greyscale image, with shape `(output_rows, output_cols)`.
     """
-    out = None
-
+    
+    imageShape = input_image.shape
+    
+    out = np.zeros((imageShape[0], imageShape[1]))
+    
+    for i in range(imageShape[0]):
+        for j in range(imageShape[1]):
+            average = sum(input_image[i][j]) / 3
+            
+            out[i][j] = average
+            
     return out
 
 def binary(grey_img, threshold):
@@ -152,7 +169,16 @@ def binary(grey_img, threshold):
     Returns:
         np.ndarray: Binary mask, with shape `(image_height, image_width)`.
     """
-    out = None
+    imageShape = grey_img.shape
+    
+    out = np.zeros((imageShape[0], imageShape[1]))
+    
+    for i in range(imageShape[0]):
+        for j in range(imageShape[1]):
+            if grey_img[i][j] < threshold:
+                out[i][j] = 0
+            else:
+                out[i][j] = 1
     
     return out
 
@@ -168,9 +194,26 @@ def conv2D(image, kernel):
     Returns:
         out: numpy array of shape (Hi, Wi).
     """
-    out = None
-    ### YOUR CODE HERE
 
+    imageShape = image.shape
+    kernelShape = kernel.shape
+    
+    paddingH = kernelShape[0] // 2
+    paddingW = kernelShape[1] // 2
+    
+    padded_image = np.pad(image, ((paddingH, paddingH), (paddingW, paddingW)), mode='constant')
+
+    out = np.zeros((imageShape[0], imageShape[1]))
+    
+    kernel = np.flip(kernel)
+    
+    for i in range(imageShape[0]):
+        for j in range(imageShape[1]):
+            imageSlice = padded_image[i:i + kernelShape[0], j:j + kernelShape[1]]
+            convolvedValue = np.sum(imageSlice * kernel)
+            out[i, j] = convolvedValue
+                        
+    # print(out)
     return out
 
 def test_conv2D():
@@ -219,11 +262,34 @@ def conv(image, kernel):
     Returns:
         out: numpy array of shape (Hi, Wi, 3) or (Hi, Wi)
     """
-    out = None
-    ### YOUR CODE HERE
+    if (len(image.shape) == 2):
+        return conv2D(image, kernel)
+    
+    else:
+        imageShape = image.shape
+        kernelShape = kernel.shape
+        
+        paddingH = kernelShape[0] // 2
+        paddingW = kernelShape[1] // 2
+        
+        padded_image = np.pad(image, ((paddingH, paddingH), (paddingW, paddingW)), mode='constant')
 
+        out = np.zeros((imageShape[0], imageShape[1]))
+        
+        kernel = np.flip(kernel)
+        
+        for i in range(imageShape[0]):
+            for j in range(imageShape[1]):
+                imageSlice = padded_image[i:i + kernelShape[0], j:j + kernelShape[1]]
+                
+                print(imageSlice)
+                
+                for k in range(3):
+                    convolvedValue = np.sum(imageSlice * kernel)
+                out[i, j] = convolvedValue
+                        
+    # print(out)
     return out
-
     
 def gauss2D(size, sigma):
 
