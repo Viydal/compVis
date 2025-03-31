@@ -266,30 +266,12 @@ def conv(image, kernel):
         return conv2D(image, kernel)
     
     else:
-        imageShape = image.shape
-        kernelShape = kernel.shape
+        out = np.zeros_like(image)
         
-        paddingH = kernelShape[0] // 2
-        paddingW = kernelShape[1] // 2
+        for c in range(3):
+            out[:, :, c] = conv2D(image[:, :, c], kernel)
         
-        padded_image = np.pad(image, ((paddingH, paddingH), (paddingW, paddingW)), mode='constant')
-
-        out = np.zeros((imageShape[0], imageShape[1]))
-        
-        kernel = np.flip(kernel)
-        
-        for i in range(imageShape[0]):
-            for j in range(imageShape[1]):
-                imageSlice = padded_image[i:i + kernelShape[0], j:j + kernelShape[1]]
-                
-                print(imageSlice)
-                
-                for k in range(3):
-                    convolvedValue = np.sum(imageSlice * kernel)
-                out[i, j] = convolvedValue
-                        
-    # print(out)
-    return out
+    return np.clip(out, 0.0, 1.0)
     
 def gauss2D(size, sigma):
 
